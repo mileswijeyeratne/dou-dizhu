@@ -1,0 +1,6 @@
+services:
+  database:
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: g1raffe
+      POSTGRED_DB: dou-dizhu
