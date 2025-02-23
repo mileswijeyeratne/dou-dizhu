@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+from typing import Iterable
+
 from enum import Enum
+from collections import defaultdict
 
 class CardSuit(Enum):
     HEARTS = "H"
@@ -8,7 +11,7 @@ class CardSuit(Enum):
     CLUBS = "C"
     SPADES = "S"
 
-CARD_RANK_ORDER = ["3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A", "2"]
+CARD_RANK_ORDER = ["3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A", "2", "SJ", "BJ"]
 
 class Card:
     def __init__(self, rank: str, suit: CardSuit):
@@ -21,7 +24,7 @@ class Card:
 
 class Joker(Card):
     def __init__(self, *, is_big: bool):
-        super().__init__("2", CardSuit.HEARTS)
+        super().__init__("BJ" if is_big else "SJ", CardSuit.HEARTS)
         self.is_joker = True
         self.is_big: bool = is_big
 
@@ -44,14 +47,130 @@ class HandType(Enum):
     BOMB = 12
     ROCKET = 13
 
+class InvalidHandError(Exception):
+    """Raised when cards passed to a `Hand` constructor do not form a valid hand"""
+    pass
+
 class Hand:
     def __init__(self, cards: list[Card]):
         self.rank: str = "3"
         self.type: HandType = HandType.SINGLE
+        self.sequence_length: int | None = None
         self._score_hand(cards)
+
+    @staticmethod
+    def is_straight(ranks: Iterable[str]):
+        rank_order_indicies: list[int] = sorted(map(lambda rank: CARD_RANK_ORDER.index(rank), ranks))
+
+        if rank_order_indicies[-1] >= CARD_RANK_ORDER.index("2"):
+            # 2 and Joker cannot be used in a straight
+            return False
+        
+        for i in range(len(rank_order_indicies) - 1):
+            if rank_order_indicies[i+1] - rank_order_indicies[i] != 1:
+                return False
+        
+        return True
+
+    @staticmethod
+    def max_rank(ranks: Iterable[str]):
+        rank_order_indicies: list[int] = sorted(map(lambda rank: CARD_RANK_ORDER.index(rank), ranks))
+
+        return CARD_RANK_ORDER[rank_order_indicies[-1]]
     
     def _score_hand(self, cards: list[Card]) -> None:
-        raise NotImplementedError
+        rank_to_freq: dict[str, int] = defaultdict(int)
+        for card in cards:
+            rank_to_freq[card.rank] += 1
+
+        sorted_frequencies: list[int] = sorted(rank_to_freq.values(), reverse=True)
+
+        freq_to_rank: dict[int, set[str]] = defaultdict(set)
+        for rank, freq in rank_to_freq.items():
+            freq_to_rank[freq].add(rank)
+
+        if len(cards) == 1:
+            self.type = HandType.SINGLE
+            self.rank = cards[0].rank
+            return
+
+        elif len(cards) == 2:
+            if cards[0].is_joker and cards[1].is_joker:
+                self.type = HandType.ROCKET
+                return
+            
+            if sorted_frequencies[0] == 2:
+                self.type = HandType.PAIR
+                self.rank = cards[0].rank
+                return
+        
+        elif len(cards) == 3:
+            if sorted_frequencies[0] == 3:
+                self.type = HandType.TRIPLET
+                self.rank = cards[0].rank
+                return
+
+        elif len(cards) == 4:
+            if sorted_frequencies[0] == 4:
+                self.type = HandType.BOMB
+                self.rank = cards[0].rank
+                return
+
+            if sorted_frequencies[0] == 3:
+                self.type = HandType.TRIPLET_WITH_SINGLE
+                self.rank = self.max_rank(freq_to_rank[3])
+                return
+        
+        elif len(cards) == 5:
+            if sorted_frequencies == [3, 2]:
+                self.type = HandType.TRIPLET_WITH_PAIR
+                self.rank = self.max_rank(freq_to_rank[3])
+                return
+            
+        elif len(cards) == 6:
+            if sorted_frequencies == [4, 1, 1]:
+                self.type = HandType.QUADPLEX_WITH_SINGLES
+                self.rank = self.max_rank(freq_to_rank[4])
+                return
+
+        elif len(cards) == 8:
+            if sorted_frequencies == [4, 2, 2]:
+                self.type = HandType.QUADPLEX_WITH_PAIRS
+                self.rank = self.max_rank(freq_to_rank[4])
+                return
+
+        if len(cards) >= 5:
+            if all([freq == 1 for freq in sorted_frequencies]) and self.is_straight(freq_to_rank[1]):
+                self.type = HandType.SEQUENCE
+                self.rank = self.max_rank(freq_to_rank[1])
+                self.sequence_length = len(cards)
+                return
+
+            if all([freq == 2 for freq in sorted_frequencies]) and self.is_straight(freq_to_rank[2]):
+                self.type = HandType.SEQUENCE_OF_PAIRS
+                self.rank = self.max_rank(freq_to_rank[2])
+                self.sequence_length = len(cards)
+                return
+
+            if all([freq == 3 for freq in sorted_frequencies]) and self.is_straight(freq_to_rank[3]):
+                self.type = HandType.SEQUENCE_OF_TRIPLETS
+                self.rank = self.max_rank(freq_to_rank[3])
+                self.sequence_length = len(cards)
+                return
+
+            if all([freq in [1, 3] for freq in sorted_frequencies]) and sorted_frequencies.count(3) >= 2 and self.is_straight(freq_to_rank[3]):
+                self.type = HandType.SEQUENCE_OF_TRIPLETS_WITH_SINGLES
+                self.rank = self.max_rank(freq_to_rank[3])
+                self.sequence_length = len(cards)
+                return
+
+            if all([freq in [2, 3] for freq in sorted_frequencies]) and sorted_frequencies.count(3) >= 2 and self.is_straight(freq_to_rank[3]):
+                self.type = HandType.SEQUENCE_OF_TRIPLETS_WITH_PAIRS
+                self.rank = self.max_rank(freq_to_rank[3])
+                self.sequence_length = len(cards)
+                return
+
+        raise InvalidHandError
 
     def beats(self, other: Hand) -> bool:
         raise NotImplementedError
