@@ -53,7 +53,7 @@ class InvalidHandError(Exception):
 
 class Hand:
     def __init__(self, cards: list[Card]):
-        self.rank: str = "3"
+        self.rank: str = ""
         self.type: HandType = HandType.SINGLE
         self.sequence_length: int | None = None
         self._score_hand(cards)
@@ -173,4 +173,29 @@ class Hand:
         raise InvalidHandError
 
     def beats(self, other: Hand) -> bool:
-        raise NotImplementedError
+        if self.type == HandType.ROCKET:
+            return True
+
+        if other.type == HandType.ROCKET:
+            return False
+
+        if self.type == HandType.BOMB and other.type != HandType.BOMB:
+            return True
+
+        if self.type != other.type:
+            return False
+
+        # if not a sequence both should be `None`
+        if self.sequence_length != other.sequence_length:
+            return False
+
+        # if self.type in [
+        #     HandType.SEQUENCE,
+        #     HandType.SEQUENCE_OF_PAIRS,
+        #     HandType.SEQUENCE_OF_TRIPLETS,
+        #     HandType.SEQUENCE_OF_TRIPLETS_WITH_SINGLES,
+        #     HandType.SEQUENCE_OF_TRIPLETS_WITH_PAIRS
+        # ] and self.sequence_length != other.sequence_length:
+        #     return False
+                
+        return self.rank > other.rank
