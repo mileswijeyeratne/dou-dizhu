@@ -22,6 +22,11 @@ class Card:
     def __repr__(self):
         return f"{self.rank} of {self.suit.value}"
 
+    def __eq__(self, other: object):
+        if not isinstance(other, Card):
+            raise NotImplementedError
+        return self.rank == other.rank and self.suit == other.suit
+
 class Joker(Card):
     def __init__(self, *, is_big: bool):
         super().__init__("BJ" if is_big else "SJ", CardSuit.HEARTS)
@@ -30,6 +35,32 @@ class Joker(Card):
 
     def __repr__(self):
         return f"{"Big" if self.is_big else "Small"} Joker"
+
+    def __eq__(self, other: object):
+        if not isinstance(other, Card):
+            raise NotImplementedError
+        if not isinstance(other, Joker):
+            return False
+        return self.is_big == other.is_big
+
+def new_deck() -> list[Card]:
+    deck: list[Card] = []
+
+    for suit in [
+        CardSuit.HEARTS,
+        CardSuit.DIAMONDS,
+        CardSuit.CLUBS,
+        CardSuit.SPADES,
+    ]:
+        for rank in CARD_RANK_ORDER:
+            if rank in ["SJ", "BJ"]:
+                continue
+            deck.append(Card(rank, suit))
+
+    deck.append(Joker(is_big=False))
+    deck.append(Joker(is_big=True))
+
+    return deck
 
 class ComboType(Enum):
     SINGLE = 0
