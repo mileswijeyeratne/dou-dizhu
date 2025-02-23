@@ -31,7 +31,7 @@ class Joker(Card):
     def __repr__(self):
         return f"{"Big" if self.is_big else "Small"} Joker"
 
-class HandType(Enum):
+class ComboType(Enum):
     SINGLE = 0
     PAIR = 1
     TRIPLET = 2
@@ -47,14 +47,14 @@ class HandType(Enum):
     BOMB = 12
     ROCKET = 13
 
-class InvalidHandError(Exception):
+class InvalidComboError(Exception):
     """Raised when cards passed to a `Hand` constructor do not form a valid hand"""
     pass
 
-class Hand:
+class Combo:
     def __init__(self, cards: list[Card]):
         self.rank: str = ""
-        self.type: HandType = HandType.SINGLE
+        self.type: ComboType = ComboType.SINGLE
         self.sequence_length: int | None = None
         self._score_hand(cards)
 
@@ -90,96 +90,96 @@ class Hand:
             freq_to_rank[freq].add(rank)
 
         if len(cards) == 1:
-            self.type = HandType.SINGLE
+            self.type = ComboType.SINGLE
             self.rank = cards[0].rank
             return
 
         elif len(cards) == 2:
             if cards[0].is_joker and cards[1].is_joker:
-                self.type = HandType.ROCKET
+                self.type = ComboType.ROCKET
                 return
             
             if sorted_frequencies[0] == 2:
-                self.type = HandType.PAIR
+                self.type = ComboType.PAIR
                 self.rank = cards[0].rank
                 return
         
         elif len(cards) == 3:
             if sorted_frequencies[0] == 3:
-                self.type = HandType.TRIPLET
+                self.type = ComboType.TRIPLET
                 self.rank = cards[0].rank
                 return
 
         elif len(cards) == 4:
             if sorted_frequencies[0] == 4:
-                self.type = HandType.BOMB
+                self.type = ComboType.BOMB
                 self.rank = cards[0].rank
                 return
 
             if sorted_frequencies[0] == 3:
-                self.type = HandType.TRIPLET_WITH_SINGLE
+                self.type = ComboType.TRIPLET_WITH_SINGLE
                 self.rank = self.max_rank(freq_to_rank[3])
                 return
         
         elif len(cards) == 5:
             if sorted_frequencies == [3, 2]:
-                self.type = HandType.TRIPLET_WITH_PAIR
+                self.type = ComboType.TRIPLET_WITH_PAIR
                 self.rank = self.max_rank(freq_to_rank[3])
                 return
             
         elif len(cards) == 6:
             if sorted_frequencies == [4, 1, 1]:
-                self.type = HandType.QUADPLEX_WITH_SINGLES
+                self.type = ComboType.QUADPLEX_WITH_SINGLES
                 self.rank = self.max_rank(freq_to_rank[4])
                 return
 
         elif len(cards) == 8:
             if sorted_frequencies == [4, 2, 2]:
-                self.type = HandType.QUADPLEX_WITH_PAIRS
+                self.type = ComboType.QUADPLEX_WITH_PAIRS
                 self.rank = self.max_rank(freq_to_rank[4])
                 return
 
         if len(cards) >= 5:
             if all([freq == 1 for freq in sorted_frequencies]) and self.is_straight(freq_to_rank[1]):
-                self.type = HandType.SEQUENCE
+                self.type = ComboType.SEQUENCE
                 self.rank = self.max_rank(freq_to_rank[1])
                 self.sequence_length = len(cards)
                 return
 
             if all([freq == 2 for freq in sorted_frequencies]) and self.is_straight(freq_to_rank[2]):
-                self.type = HandType.SEQUENCE_OF_PAIRS
+                self.type = ComboType.SEQUENCE_OF_PAIRS
                 self.rank = self.max_rank(freq_to_rank[2])
                 self.sequence_length = len(cards)
                 return
 
             if all([freq == 3 for freq in sorted_frequencies]) and self.is_straight(freq_to_rank[3]):
-                self.type = HandType.SEQUENCE_OF_TRIPLETS
+                self.type = ComboType.SEQUENCE_OF_TRIPLETS
                 self.rank = self.max_rank(freq_to_rank[3])
                 self.sequence_length = len(cards)
                 return
 
             if all([freq in [1, 3] for freq in sorted_frequencies]) and sorted_frequencies.count(3) >= 2 and self.is_straight(freq_to_rank[3]):
-                self.type = HandType.SEQUENCE_OF_TRIPLETS_WITH_SINGLES
+                self.type = ComboType.SEQUENCE_OF_TRIPLETS_WITH_SINGLES
                 self.rank = self.max_rank(freq_to_rank[3])
                 self.sequence_length = len(cards)
                 return
 
             if all([freq in [2, 3] for freq in sorted_frequencies]) and sorted_frequencies.count(3) >= 2 and self.is_straight(freq_to_rank[3]):
-                self.type = HandType.SEQUENCE_OF_TRIPLETS_WITH_PAIRS
+                self.type = ComboType.SEQUENCE_OF_TRIPLETS_WITH_PAIRS
                 self.rank = self.max_rank(freq_to_rank[3])
                 self.sequence_length = len(cards)
                 return
 
-        raise InvalidHandError
+        raise InvalidComboError
 
-    def beats(self, other: Hand) -> bool:
-        if self.type == HandType.ROCKET:
+    def beats(self, other: Combo) -> bool:
+        if self.type == ComboType.ROCKET:
             return True
 
-        if other.type == HandType.ROCKET:
+        if other.type == ComboType.ROCKET:
             return False
 
-        if self.type == HandType.BOMB and other.type != HandType.BOMB:
+        if self.type == ComboType.BOMB and other.type != ComboType.BOMB:
             return True
 
         if self.type != other.type:
@@ -188,14 +188,5 @@ class Hand:
         # if not a sequence both should be `None`
         if self.sequence_length != other.sequence_length:
             return False
-
-        # if self.type in [
-        #     HandType.SEQUENCE,
-        #     HandType.SEQUENCE_OF_PAIRS,
-        #     HandType.SEQUENCE_OF_TRIPLETS,
-        #     HandType.SEQUENCE_OF_TRIPLETS_WITH_SINGLES,
-        #     HandType.SEQUENCE_OF_TRIPLETS_WITH_PAIRS
-        # ] and self.sequence_length != other.sequence_length:
-        #     return False
                 
         return self.rank > other.rank
