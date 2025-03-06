@@ -32,6 +32,7 @@ class Room:
 
             except WebSocketDisconnect:
                 await self.handle_disconnect(player)
+                return
 
     async def handle_message(self, data: dict[Any, Any], player: Player, websocket: WebSocket) -> None:
         print(f"[ROOM {self.id}] [Player {player.id}] {data}")
