@@ -1,10 +1,13 @@
-FROM node:19-alpine
-WORKDIR /usr/app
+FROM node:18
 
-COPY package*.json ./
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
 RUN npm install
 
 COPY . .
 
 EXPOSE 8080
-CMD ["npm", "run", "host"]
+
+CMD ["npm", "run", "dev"]

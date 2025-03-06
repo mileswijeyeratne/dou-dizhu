@@ -2,8 +2,8 @@ services:
   frontend:
     build: ./frontend/
     volumes:
-      - ./frontend/:/usr/app
-      - /usr/app/node_modules/
+      - ./frontend/:/app
+      - /app/node_modules/
     ports:
       - 8080:8080
 

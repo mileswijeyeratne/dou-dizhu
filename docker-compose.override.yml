@@ -1,6 +1,4 @@
 services:
-  frontend:
-    command: npm run host:watch
   database:
     environment:
       POSTGRES_USER: postgres
