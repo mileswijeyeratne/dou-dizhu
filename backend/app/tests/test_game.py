@@ -7,9 +7,9 @@ from app.game.models import Card, CardSuit
 class TestGame(unittest.TestCase):
     def setUp(self):
         self.game = Game()
-        self.player1 = Player()
-        self.player2 = Player()
-        self.player3 = Player()
+        self.player1 = Player("player1", 1)
+        self.player2 = Player("player2", 2)
+        self.player3 = Player("player3", 3)
         self.players = [self.player1, self.player2, self.player3]
 
     def test_add_players(self):
@@ -24,7 +24,7 @@ class TestGame(unittest.TestCase):
         self.assertEqual(self.game.gamestate, GameState.BIDDING)
 
         with self.assertRaises(InvalidStateError):
-            self.game.add_player(Player())
+            self.game.add_player(Player("player4", 4))
 
     def test_make_bid(self):
         self.game.add_player(self.player1)
