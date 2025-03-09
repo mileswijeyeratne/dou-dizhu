@@ -1,19 +1,36 @@
-import Card from "./components/Card"
+import { CardType } from "./types/Card"
+import PlayerHand from "./components/PlayerHand"
 
 import './App.css'
 
 
 function App() {
+  const hand: Array<CardType> = [
+    {rank: "9", suit: "diamonds"},
+    {rank: "8", suit: "hearts"},
+    {rank: "9", suit: "diamonds"},
+    {rank: "9", suit: "diamonds"},
+    {rank: "8", suit: "hearts"},
+    {rank: "9", suit: "diamonds"},
+    {rank: "8", suit: "hearts"},
+    {rank: "J", suit: "clubs"},
+    {rank: "K", suit: "spades"},
+    {rank: "big", suit: "joker"},
+    {rank: "9", suit: "diamonds"},
+    {rank: "8", suit: "hearts"},
+    {rank: "J", suit: "clubs"},
+    {rank: "K", suit: "spades"},
+    {rank: "big", suit: "joker"},
+    {rank: "9", suit: "diamonds"},
+    {rank: "8", suit: "hearts"},
+    {rank: "J", suit: "clubs"},
+    {rank: "K", suit: "spades"},
+    {rank: "big", suit: "joker"},
+  ];
 
-  return ( <>
-    <Card faceDown={false} suit="clubs" rank="J" />
-    <Card faceDown={true} suit="clubs" rank="J" />
-    <Card faceDown={false} suit="diamonds" rank="A" />
-    <Card faceDown={false} suit="hearts" rank="9" />
-    <Card faceDown={false} suit="spades" rank="8" />
-    <Card faceDown={false} suit="joker" rank="big" />
-    <Card faceDown={false} suit="joker" rank="small" />
-  </>)
+  return (
+    <PlayerHand cards={hand} />
+  )
 }
 
 export default App

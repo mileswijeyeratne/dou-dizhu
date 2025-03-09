@@ -1,20 +1,30 @@
 import React from "react";
 
+import { CardType } from "../types/Card";
+
 import "./Card.css"
+
+export const CARD_HEIGHT = 120;
+export const CARD_WIDTH = 80;
 
 interface CardProps {
     faceDown: boolean;
-    suit: string;
-    rank: string;
+    cardType?: CardType;
 }
 
-const Card: React.FC<CardProps> = ({faceDown, suit, rank}) => {
+export const Card: React.FC<CardProps> = ({faceDown, cardType}) => {
     if (faceDown) {
         return (
             <div className = "card card-facedown">
             </div>
         );
     }
+
+    if (!cardType) {
+        throw new Error("cardType must be passed if card is faceup");
+    }
+
+    const { suit, rank } = cardType;
 
     if (suit === "joker") {
         const isBig = rank === "big";
@@ -59,5 +69,3 @@ const Card: React.FC<CardProps> = ({faceDown, suit, rank}) => {
         </div>
     )
 }
-
-export default Card;

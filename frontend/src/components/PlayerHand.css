@@ -1,0 +1,19 @@
+.player-hand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.player-hand h2 {
+    margin: 0;
+}
+
+.hand-cards {
+    display: flex;
+    position: relative;
+    height: 120px;
+}
+
+.card-wrapper {
+    position: absolute;
+}
