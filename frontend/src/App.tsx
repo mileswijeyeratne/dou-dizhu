@@ -1,36 +1,20 @@
-import { CardType } from "./types/Card"
-import PlayerHand from "./components/PlayerHand"
+import React from 'react'
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+import LandingPage from './components/LandingPage';
+import GamePage from './components/GamePage';
 
 import './App.css'
 
-
-function App() {
-  const hand: Array<CardType> = [
-    {rank: "9", suit: "diamonds"},
-    {rank: "8", suit: "hearts"},
-    {rank: "9", suit: "diamonds"},
-    {rank: "9", suit: "diamonds"},
-    {rank: "8", suit: "hearts"},
-    {rank: "9", suit: "diamonds"},
-    {rank: "8", suit: "hearts"},
-    {rank: "J", suit: "clubs"},
-    {rank: "K", suit: "spades"},
-    {rank: "big", suit: "joker"},
-    {rank: "9", suit: "diamonds"},
-    {rank: "8", suit: "hearts"},
-    {rank: "J", suit: "clubs"},
-    {rank: "K", suit: "spades"},
-    {rank: "big", suit: "joker"},
-    {rank: "9", suit: "diamonds"},
-    {rank: "8", suit: "hearts"},
-    {rank: "J", suit: "clubs"},
-    {rank: "K", suit: "spades"},
-    {rank: "big", suit: "joker"},
-  ];
-
+const App: React.FC = () => {
   return (
-    <PlayerHand cards={hand} />
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<LandingPage />}/>
+        <Route path="/g" element={<GamePage />}/>
+      </Routes>
+    </BrowserRouter>
   )
-}
+};
 
 export default App
