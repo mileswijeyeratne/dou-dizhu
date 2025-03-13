@@ -2,8 +2,11 @@ import React from "react";
 
 import PlayerHand from "./PlayerHand";
 import { CardType } from "../types/Card";
+import { useWebSocket } from "../services/WebSocket";
 
 const GamePage: React.FC = () => {
+  const {isConnected, ...other } = useWebSocket();
+
   // placeholder hand
   const hand: Array<CardType> = [
     {rank: "9", suit: "diamonds"},
