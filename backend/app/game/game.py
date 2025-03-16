@@ -136,14 +136,14 @@ class Game:
         if self.gamestate != GameState.GAMEPLAY:
             raise InvalidStateError("Cannot play a combo when not in the gameplay phase")
 
-        if self.players[self.turn_ind] is not player:
+        if self.players[self.turn_ind] != player:
             raise InvalidTurnError("It is not that players turn to play")
 
         combo = Combo(cards)  # will propogate an error if invalid hand
 
         if self.last_turn:
             last_player, last_combo = self.last_turn
-            if last_player is not self.players[self.turn_ind] and not combo.beats(last_combo):
+            if last_player != self.players[self.turn_ind] and not combo.beats(last_combo):
                 raise InvalidMoveError("That is not a valid combo in this position")
         
         self.last_turn = player, combo
@@ -164,7 +164,7 @@ class Game:
         if self.gamestate != GameState.GAMEPLAY:
             raise InvalidStateError("Cannot play a combo when not in the gameplay phase")
 
-        if self.players[self.turn_ind] is not player:
+        if self.players[self.turn_ind] != player:
             raise InvalidTurnError("It is not that players turn to play")
 
         if self.last_turn is None:
@@ -174,7 +174,7 @@ class Game:
 
         last_player, last_combo = self.last_turn
 
-        if last_player is self.players[self.turn_ind]:
+        if last_player == self.players[self.turn_ind]:
             # everyone else has skipped
             self.last_turn = None
 
@@ -212,14 +212,14 @@ class Game:
         return self.stake
 
     def _start_gameover(self, winning_player: Player) -> None:
-        if winning_player is self.landlord:
+        if winning_player == self.landlord:
             self.landlord_won = True
 
     def get_payout(self, player: Player) -> int:
         if self.gamestate != GameState.GAMEOVER:
             raise InvalidStateError("Game hasn't ended so can't get payout")
 
-        if player is self.landlord:
+        if player == self.landlord:
             if self.landlord_won:
                 return 2 * self.stake
             else:
