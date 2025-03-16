@@ -23,7 +23,9 @@ class Room:
     async def player_connection(self, player: Player, websocket: WebSocket) -> None:
         print(f"[ROOM {self.id}] [Player {player.id}] connected")
         self.connections[player] = websocket
-        self.game.add_player(player)
+
+        if player not in self.game.players:
+            self.game.add_player(player)
 
         while True:
             try:
@@ -36,8 +38,11 @@ class Room:
 
     async def handle_message(self, data: dict[Any, Any], player: Player, websocket: WebSocket) -> None:
         print(f"[ROOM {self.id}] [Player {player.id}] {data}")
-        pass
+
+        if name := data.get("name"):
+            player.name = name
+
 
     async def handle_disconnect(self, player: Player) -> None:
         print(f"[ROOM {self.id}] [Player {player.id}] disconnected")
-        pass
+        del self.connections[player] 

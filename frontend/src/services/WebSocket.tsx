@@ -1,8 +1,8 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from "react";
+import React, { createContext, useCallback, useContext, useEffect, useState, useRef } from "react";
 
 import { CardType } from "../types/Card";
 
-const SERVER_URL = "ws://localhost/ws";
+const SERVER_URL = "ws://localhost:3000/ws";
 
 interface Player {
     playerId: string;
@@ -41,14 +41,14 @@ interface WebSocketProviderProps {
 export const WebSocketContext = createContext<WebSocketContextType | null>(null);
 
 export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
-    const [socket, setSocket] = useState<WebSocket | null>(null);
+    const socket = useRef<WebSocket | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [gameState, setGameState] = useState<GameState | null>(null);
     const [playerHand, setPlayerHand] = useState<CardType[] | null>(null);
     const [error, setError] = useState<string | null>(null);
 
     const connect = useCallback(() => {
-        if (socket) {
+        if (socket.current) {
             return;
         }
 
@@ -56,7 +56,10 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             const ws = new WebSocket(SERVER_URL);
 
             ws.onopen = () => {
+                socket.current = ws;
+                setIsConnected(true);
                 console.log("opened conn");
+                ws.send(JSON.stringify({"name": localStorage.getItem("playerName")}));
             };
 
             ws.onclose = () => {
@@ -76,18 +79,20 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             console.error(err);
         }  
 
-    }, [socket]);
+    }, []);
 
     const disconnect = useCallback(() => {
-        if (socket) {
-            socket.close();
-            setSocket(null);
+        if (socket.current) {
+            socket.current.close();
+            socket.current = null;
             setIsConnected(false);
         }
-    }, [socket])
+    }, [])
 
     const sendMsg = useCallback((data: any) => {
-
+        if (socket.current) {
+            socket.current.send(data);
+        }
     }, []);
 
     // connect when mounted and disconnect when unmounted
@@ -97,7 +102,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
         return () => {
             disconnect();
         };
-    }, [connect, disconnect]);
+    }, []);
 
     return (
         <WebSocketContext.Provider
