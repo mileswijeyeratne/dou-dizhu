@@ -12,15 +12,6 @@
     font-family: 'Arial', sans-serif;
 }
 
-.card:not(.card-facedown) {
-    transition: .3s;
-}
-
-.card:not(.card-facedown):hover {
-    transform: translateY(-10%);
-
-}
-
 .card-red {
     color: red;
 }

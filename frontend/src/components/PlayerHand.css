@@ -16,4 +16,9 @@
 
 .card-wrapper {
     position: absolute;
+    transition: .3s;
+}
+
+.card-wrapper:hover {
+    transform: translateY(-10%);
 }
