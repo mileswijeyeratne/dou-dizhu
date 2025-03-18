@@ -1,0 +1,9 @@
+.last-combo {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+.last-combo-card-wrapper {
+    margin: 5px;
+}

@@ -2,10 +2,15 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    position: fixed;
+    bottom: 10%;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 .player-hand h2 {
     margin: 0;
+    margin-bottom: 10px;
 }
 
 .hand-cards {

@@ -1,0 +1,8 @@
+.game-page .title {
+    text-align: center;
+}
+
+.opponents-container {
+    display: flex;
+    justify-content: space-between;
+}
