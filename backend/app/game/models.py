@@ -27,6 +27,15 @@ class Card:
             raise NotImplementedError
         return self.rank == other.rank and self.suit == other.suit
 
+    def to_object(self) -> dict[str, str]:
+        rank = self.rank
+        if self.rank == "SJ": rank = "small"
+        if self.rank == "BJ": rank = "big"
+        return {
+            "rank": rank,
+            "suit": self.suit.name.lower() if not self.is_joker else "joker"
+        }
+
 class Joker(Card):
     def __init__(self, *, is_big: bool):
         super().__init__("BJ" if is_big else "SJ", CardSuit.HEARTS)

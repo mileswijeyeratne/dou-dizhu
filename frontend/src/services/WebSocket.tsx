@@ -29,7 +29,7 @@ interface WebSocketContextType {
     sendMsg: (data: any) => void;
     disconnect: () => void;
     gameState: GameState | null;
-    playerHand: CardType[] | null;
+    playerHand: CardType[];
     error: string | null;
 };
 
@@ -44,7 +44,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     const socket = useRef<WebSocket | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [gameState, setGameState] = useState<GameState | null>(null);
-    const [playerHand, setPlayerHand] = useState<CardType[] | null>(null);
+    const [playerHand, setPlayerHand] = useState<CardType[]>([]);
     const [error, setError] = useState<string | null>(null);
 
     const connect = useCallback(() => {
@@ -71,7 +71,20 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             };
 
             ws.onmessage = (event) => {
-                console.log(event);
+                const data = JSON.parse(event.data);
+
+                if (data.id) {
+                    localStorage.setItem("playerID", data.id);
+                }
+
+                if (data.action == "update-hand") {
+                    setPlayerHand(data.hand);
+                }
+
+                if (data.action == "update-state") {
+                    console.log(data.state);
+                    setGameState({...gameState, ...data.state});
+                }
             };
 
         } catch (err) {

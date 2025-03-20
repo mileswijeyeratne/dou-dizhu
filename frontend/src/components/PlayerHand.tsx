@@ -8,9 +8,10 @@ const CARD_OVERLAP = 15;
 
 interface PlayerHandProps {
     cards: Array<CardType>;
+    playHandCallback: (selectedCards: boolean[]) => void;
 }
 
-const PlayerHand: React.FC<PlayerHandProps> = ({ cards }) => {
+const PlayerHand: React.FC<PlayerHandProps> = ({ cards, playHandCallback }) => {
     const cardsWidth = cards.length * CARD_WIDTH - (cards.length - 1) * CARD_OVERLAP
 
     const [isSelected, setIsSelected] = useState<boolean[]>(new Array(cards.length).fill(false));
@@ -40,7 +41,7 @@ const PlayerHand: React.FC<PlayerHandProps> = ({ cards }) => {
                 ))}
             </div>
             <button
-                onClick={() => console.log(isSelected)}
+                onClick={() => playHandCallback(isSelected)}
             >
             Play hand
             </button>

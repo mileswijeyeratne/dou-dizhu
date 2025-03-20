@@ -1,9 +1,10 @@
 from typing import Any
 
 from ..game.player import Player
-from ..game.game import Game
+from ..game.game import Game, InvalidStateError
+from ..game.models import Card, InvalidComboError
 
-from fastapi import WebSocket, WebSocketDisconnect, APIRouter
+from fastapi import WebSocket, WebSocketDisconnect
 
 class Room:
     def __init__(self, id: int) -> None:
@@ -42,6 +43,59 @@ class Room:
         if name := data.get("name"):
             player.name = name
 
+        if action := data.get("action"):
+            if action == "play":
+                cards = []
+                for card in data.get("cards", []):
+                   cards.append(Card(card["rank"], card["suit"])) 
+
+                try:
+                    self.game.play_combo(player, cards)
+                except InvalidComboError:
+                    await websocket.send_json({"error": "invalid-combo"})
+
+        # TODO move out of here
+        await self.broadcast({
+            "action": "update-state",
+            "state": self.get_game_state(),
+        })
+
+    def cards_to_object(self, cards: list[Card]) -> list[dict[Any, Any]]:
+        res = []
+        for c in cards:
+            res.append(c.to_object())
+        return res
+
+    def get_game_state(self) -> dict[Any, Any]:
+        state = {
+            "gameId": self.id,
+            "gamePhase": str(self.game.gamestate),
+            "players": list(map(lambda p: str(p.id), self.game.players)),
+        }
+
+        # needs bidding
+        try:
+            state.update({
+                "currentPlayerTurnId": str(self.game.get_turn().id),
+                # "bids": TODO ts map
+            })
+
+        except InvalidStateError:
+            pass
+
+        # needs game started
+        try:
+            state.update({
+                "stake": self.game.get_stake(),
+                # "numberOfCards": TODO ts map
+                "landlordId": str(self.game.get_landlord()),
+                "tableCards": self.cards_to_object(self.game.get_table_cards()),
+                "lastPlayedCombo": self.cards_to_object(self.game.get_last_combo_cards()),
+            })
+        except InvalidStateError:
+            pass
+
+        return state
 
     async def handle_disconnect(self, player: Player) -> None:
         print(f"[ROOM {self.id}] [Player {player.id}] disconnected")

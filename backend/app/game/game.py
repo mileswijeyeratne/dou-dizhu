@@ -10,6 +10,9 @@ class GameState(Enum):
     GAMEPLAY = auto()
     GAMEOVER = auto()
 
+    def __str__(self):
+        return self.name.lower()
+
 class InvalidStateError(Exception):
     pass
 
@@ -36,6 +39,7 @@ class Game:
         self.stake: int = 1
 
         self.last_turn: tuple[Player, Combo] | None = None
+        self.last_played_combo_cards: list[Card] = []
 
         self.landlord_won: bool = False
 
@@ -147,6 +151,7 @@ class Game:
                 raise InvalidMoveError("That is not a valid combo in this position")
         
         self.last_turn = player, combo
+        self.last_played_combo_cards = cards
 
         if combo.type in [ComboType.BOMB, ComboType.ROCKET]:
             self.stake *= 2
@@ -172,11 +177,12 @@ class Game:
 
         self._advance_turn()
 
-        last_player, last_combo = self.last_turn
+        last_player, _ = self.last_turn
 
         if last_player == self.players[self.turn_ind]:
             # everyone else has skipped
             self.last_turn = None
+            self.last_played_combo_cards = []
 
     def _assert_bidding_started(self, msg):
         if self.gamestate == GameState.PREGAME:
@@ -202,6 +208,10 @@ class Game:
     def get_table_cards(self) -> list[Card]:
         self._assert_gameplay_started("Can't query table cards until after game started")
         return self.table_cards
+
+    def get_last_combo_cards(self) -> list[Card]:
+        self._assert_gameplay_started("Can't query last combo until after game started")
+        return self.last_played_combo_cards
 
     def get_bids(self) -> dict[Player, int]:
         self._assert_bidding_started("Can't query bids until after bidding started")
