@@ -1,0 +1,28 @@
+.bidding-window {
+    /* positioning */
+    position: absolute;
+    left: 50vw;
+    top: 30vh;
+    transform: translate(-50%, -50%);
+
+    /* contents */
+    display: flex;
+    flex-flow: row wrap;
+    width: 600px;
+    height: 200px;
+
+    /* styling */
+    border: 1px solid white;
+    border-radius: 20px;
+}
+
+.bidding-window h1 {
+    text-align: center;
+    color: white;
+    width: 100%;
+}
+
+.bidding-window button {
+    flex: 1 1 25%;
+    margin: 10px;
+}
