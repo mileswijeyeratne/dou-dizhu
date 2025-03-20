@@ -8,6 +8,11 @@
     transform: translateX(-50%);
 }
 
+.player-hand .selected {
+    border: 2px solid gold;
+    transform: translateY(-30%);
+}
+
 .player-hand h2 {
     margin: 0;
     margin-bottom: 10px;
@@ -22,8 +27,17 @@
 .card-wrapper {
     position: absolute;
     transition: .3s;
+    border-radius: 10px;
 }
 
-.card-wrapper:hover {
+.card-wrapper:hover:not(.selected) {
     transform: translateY(-10%);
+}
+
+.card-wrapper:hover.selected {
+    transform: translateY(-20%);
+}
+
+button {
+    margin-top: 10px;
 }
