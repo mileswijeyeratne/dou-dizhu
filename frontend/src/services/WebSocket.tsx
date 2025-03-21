@@ -53,7 +53,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
         }
 
         try {
-            const ws = new WebSocket(SERVER_URL);
+            let url = SERVER_URL;
+            const playerId = localStorage.getItem("playerId");
+            if (playerId) {
+                url += `/${playerId}`;
+            }
+            const ws = new WebSocket(url);
 
             ws.onopen = () => {
                 socket.current = ws;
@@ -74,7 +79,8 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 const data = JSON.parse(event.data);
 
                 if (data.id) {
-                    localStorage.setItem("playerID", data.id);
+                    localStorage.setItem("playerId", data.id);
+                    console.log(data.id)
                 }
 
                 if (data.action == "update-hand") {

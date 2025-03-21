@@ -42,8 +42,11 @@ async def websocket_endpoint_without_id(websocket: WebSocket):
     await handle_websocket_endpoint(websocket, id)
 
 async def handle_websocket_endpoint(websocket: WebSocket, player_id: str):
-    # TODO get player name and authenticate
+    # TODO authenticate
+    name_data = await websocket.receive_json()
+    name = name_data.get("name")
     player = Player(UUID(player_id))
+    if name: player.name = name
 
     room = room_manager.get_room(player) or room_manager.get_free_room()
 
