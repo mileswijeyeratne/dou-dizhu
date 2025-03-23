@@ -66,6 +66,17 @@ class Room:
             "action": "update-state",
             "state": self.get_game_state(),
         })
+        await self.send_player_hands()
+
+    async def send_player_hands(self):
+        for player, conn in self.connections.items():
+            try:
+                await conn.send_json({
+                    "action": "update-hand",
+                    "hand": self.cards_to_object(self.game.get_hand(player))
+                })
+            except InvalidStateError:
+                pass
 
     def cards_to_object(self, cards: list[Card]) -> list[dict[Any, Any]]:
         res = []
@@ -84,9 +95,8 @@ class Room:
         try:
             state.update({
                 "currentPlayerTurnId": str(self.game.get_turn().id),
-                # "bids": TODO ts map
+                "bids": {str(p.id): b for p, b in self.game.get_bids().items()}
             })
-
         except InvalidStateError:
             pass
 
@@ -94,7 +104,7 @@ class Room:
         try:
             state.update({
                 "stake": self.game.get_stake(),
-                # "numberOfCards": TODO ts map
+                "numberOfCards": {str(p.id): self.game.get_num_cards_left(p) for p in self.game.players},
                 "landlordId": str(self.game.get_landlord().id),
                 "tableCards": self.cards_to_object(self.game.get_table_cards()),
                 "lastPlayedCombo": self.cards_to_object(self.game.get_last_combo_cards()),

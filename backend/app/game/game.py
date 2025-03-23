@@ -192,6 +192,10 @@ class Game:
         if self.gamestate in [GameState.PREGAME, GameState.BIDDING]:
             raise InvalidStateError(msg)
 
+    def get_hand(self, player: Player) -> list[Card]:
+        self._assert_bidding_started("Bidding must have started for hands to have been dealt")
+        return self.hands[player]
+
     def get_turn(self) -> Player:
         self._assert_bidding_started("Bidding must have started for turn to exist")
         return self.players[self.turn_ind]

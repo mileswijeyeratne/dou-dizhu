@@ -23,6 +23,29 @@ export interface GameState {
     lastPlayedCombo: CardType[];
 };
 
+const parseGameState = (data: any, prevState: any): GameState => {
+    return {
+        ...prevState,
+        ...data,
+        numberOfCards: data.numberOfCards ? new Map(Object.entries(data.numberOfCards)) : prevState.numberOfCards,
+        bids: data.bids ? new Map(Object.entries(data.bids)) : prevState.bids,
+    }
+}
+
+const defaultState: GameState = {
+    gameId: "",
+
+    gamePhase: "pregame",
+    players: [],
+    currentPlayerTurnId: "",
+    numberOfCards: new Map(),
+    bids: new Map(),
+    stake: 0,
+    tableCards: [],
+    landlordId: null,
+    lastPlayedCombo: []
+}
+
 interface WebSocketContextType {
     isConnected: boolean;
     connect: () => void;
@@ -33,7 +56,6 @@ interface WebSocketContextType {
     error: string | null;
 };
 
-
 interface WebSocketProviderProps {
     children: React.ReactNode;
 };
@@ -43,7 +65,7 @@ export const WebSocketContext = createContext<WebSocketContextType | null>(null)
 export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }) => {
     const socket = useRef<WebSocket | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
-    const [gameState, setGameState] = useState<GameState | null>(null);
+    const [gameState, setGameState] = useState<GameState>(defaultState);
     const [playerHand, setPlayerHand] = useState<CardType[]>([]);
     const [error, setError] = useState<string | null>(null);
 
@@ -89,7 +111,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
                 if (data.action == "update-state") {
                     console.log(data.state);
-                    setGameState({...gameState, ...data.state});
+                    setGameState(parseGameState(data.state, gameState));
                 }
             };
 

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import "./PlayerHand.css"
 import { CardType } from "../types/Card";
@@ -14,7 +14,11 @@ interface PlayerHandProps {
 const PlayerHand: React.FC<PlayerHandProps> = ({ cards, playHandCallback }) => {
     const cardsWidth = cards.length * CARD_WIDTH - (cards.length - 1) * CARD_OVERLAP
 
-    const [isSelected, setIsSelected] = useState<boolean[]>(new Array(cards.length).fill(false));
+    const [isSelected, setIsSelected] = useState<boolean[]>([]);
+
+    useEffect(() => {
+        setIsSelected(new Array(cards.length).fill(false));
+    }, [cards])
 
     return (
         <div className="player-hand">
