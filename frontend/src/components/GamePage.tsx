@@ -29,14 +29,14 @@ const GamePage: React.FC = () => {
   }, []);
 
   const myPlayerIndex = useCallback(() => {
-    return gameState?.players.findIndex((player) => player === localStorage.getItem("playerId"));
+    return gameState?.players.findIndex((player) => player.playerId === localStorage.getItem("playerId"));
   }, [gameState]);
 
   const opponentId = useCallback((position: "left" | "right") => {
     const selfIndex = myPlayerIndex();
-    if (!selfIndex) return "";
+    if (selfIndex === undefined) return "";
     const offset = position === "left" ? 2 : 1;
-    return gameState?.players[(selfIndex + offset) % 3] || "";
+    return gameState?.players[(selfIndex + offset) % 3]?.playerId || "";
   }, [gameState, myPlayerIndex]);
 
   const isMyBid = useCallback(() => {

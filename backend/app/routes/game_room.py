@@ -77,7 +77,7 @@ class Room:
         state = {
             "gameId": self.id,
             "gamePhase": str(self.game.gamestate),
-            "players": list(map(lambda p: str(p.id), self.game.players)),
+            "players": list(map(lambda p: {"playerId": str(p.id), "name": p.name}, self.game.players)),
         }
 
         # needs bidding
