@@ -9,9 +9,11 @@ const CARD_OVERLAP = 15;
 interface PlayerHandProps {
     cards: Array<CardType>;
     playHandCallback: (selectedCards: boolean[]) => void;
+    skipTurnCallback: () => void;
+    isMyTurn: () => boolean;
 }
 
-const PlayerHand: React.FC<PlayerHandProps> = ({ cards, playHandCallback }) => {
+const PlayerHand: React.FC<PlayerHandProps> = ({ cards, playHandCallback, skipTurnCallback, isMyTurn }) => {
     const cardsWidth = cards.length * CARD_WIDTH - (cards.length - 1) * CARD_OVERLAP
 
     const [isSelected, setIsSelected] = useState<boolean[]>([]);
@@ -44,10 +46,18 @@ const PlayerHand: React.FC<PlayerHandProps> = ({ cards, playHandCallback }) => {
                     </div>
                 ))}
             </div>
+
             <button
+                disabled={!isMyTurn()}
                 onClick={() => playHandCallback(isSelected)}
             >
-            Play hand
+                Play hand
+            </button>
+            <button
+                disabled={!isMyTurn()}
+                onClick={skipTurnCallback}
+            >
+                Skip
             </button>
         </div>
     )

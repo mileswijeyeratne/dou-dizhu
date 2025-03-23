@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 
 import "./GamePage.css"
 import PlayerHand from "./PlayerHand";
@@ -14,6 +14,13 @@ const GamePage: React.FC = () => {
     playerHand,
   } = useWebSocket();
 
+  // TESTING (not landlord always skips)
+  // useEffect(() => {
+  //   if (gameState?.gamePhase == "gameplay" && gameState?.landlordId != localStorage.getItem("playerId") && gameState?.currentPlayerTurnId == localStorage.getItem("playerId")) {
+  //     sendMsg(JSON.stringify({"action": "skip"}))
+  //   }
+  // }, [gameState]);
+
   const makeBid = useCallback((amount: number) => {
     sendMsg(JSON.stringify({
       "action": "bid",
@@ -26,7 +33,13 @@ const GamePage: React.FC = () => {
       "action": "play",
       "cards": playerHand.filter((_, index) => selectedCards[index])
     }));
-  }, []);
+  }, [playerHand]);
+
+  const skipTurn = useCallback(() => {
+    sendMsg(JSON.stringify({
+      "action": "skip"
+    }))
+  }, [])
 
   const myPlayerIndex = useCallback(() => {
     return gameState?.players.findIndex((player) => player.playerId === localStorage.getItem("playerId"));
@@ -41,6 +54,10 @@ const GamePage: React.FC = () => {
 
   const isMyBid = useCallback(() => {
     return gameState?.gamePhase == "bidding" && gameState?.currentPlayerTurnId == localStorage.getItem("playerId");
+  }, [gameState]);
+
+  const isMyTurn = useCallback(() => {
+    return gameState?.gamePhase == "gameplay" && gameState?.currentPlayerTurnId == localStorage.getItem("playerId");
   }, [gameState]);
 
   return (
@@ -63,7 +80,12 @@ const GamePage: React.FC = () => {
       </div>
 
       <LastCombo cards={gameState?.lastPlayedCombo || []}/>
-      <PlayerHand cards={playerHand ? playerHand : []} playHandCallback={playHand} />
+      <PlayerHand
+        cards={playerHand ? playerHand : []}
+        playHandCallback={playHand}
+        skipTurnCallback={skipTurn}
+        isMyTurn={isMyTurn}
+      />
     </div>
   );
 };

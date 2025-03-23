@@ -113,6 +113,11 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                     console.log(data.state);
                     setGameState(parseGameState(data.state, gameState));
                 }
+
+                if (data.error) {
+                    alert(data.error)
+                    console.warn(data.error)
+                }
             };
 
         } catch (err) {

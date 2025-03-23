@@ -1,7 +1,7 @@
 from typing import Any
 
 from ..game.player import Player
-from ..game.game import Game, InvalidStateError, InvalidBidError
+from ..game.game import Game, InvalidStateError, InvalidBidError, InvalidTurnError, InvalidMoveError
 from ..game.models import Card, InvalidComboError
 
 from fastapi import WebSocket, WebSocketDisconnect
@@ -44,22 +44,36 @@ class Room:
             player.name = name
 
         if action := data.get("action"):
-            if action == "bid":
-                amount = data.get("amount", 0)
-                try:
-                    self.game.make_bid(player, amount)
-                except InvalidBidError:
-                    await websocket.send_json({"error": "invalid-bid"})
+            try:
+                if action == "bid":
+                    amount = data.get("amount", 0)
+                    try:
+                        self.game.make_bid(player, amount)
+                    except InvalidBidError:
+                        await websocket.send_json({"error": "invalid-bid"})
 
-            if action == "play":
-                cards = []
-                for card in data.get("cards", []):
-                   cards.append(Card(card["rank"], card["suit"])) 
+                if action == "play":
+                    cards = []
+                    for card in data.get("cards", []):
+                        cards.append(Card.from_object(card))
 
-                try:
-                    self.game.play_combo(player, cards)
-                except InvalidComboError:
-                    await websocket.send_json({"error": "invalid-combo"})
+                    try:
+                        self.game.play_combo(player, cards)
+                    except InvalidComboError:
+                        await websocket.send_json({"error": "invalid-combo"})
+                
+                if action == "skip":
+                    self.game.skip_play(player)
+            
+            except InvalidStateError:
+                await websocket.send_json({"error": "invalid-state"})
+            
+            except InvalidTurnError:
+                await websocket.send_json({"error": "invalid-turn"})
+            
+            except InvalidMoveError:
+                await websocket.send_json({"error": "invalid-move"})
+            
 
         # TODO move out of here
         await self.broadcast({
@@ -80,7 +94,7 @@ class Room:
 
     def cards_to_object(self, cards: list[Card]) -> list[dict[Any, Any]]:
         res = []
-        for c in cards:
+        for c in sorted(cards, reverse=True):
             res.append(c.to_object())
         return res
 

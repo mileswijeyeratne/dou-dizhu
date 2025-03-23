@@ -226,6 +226,8 @@ class Game:
         return self.stake
 
     def _start_gameover(self, winning_player: Player) -> None:
+        self.gamestate = GameState.GAMEOVER
+
         if winning_player == self.landlord:
             self.landlord_won = True
 

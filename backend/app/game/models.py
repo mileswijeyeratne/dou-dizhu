@@ -27,6 +27,11 @@ class Card:
             raise NotImplementedError
         return self.rank == other.rank and self.suit == other.suit
 
+    def __lt__(self, other: object):
+        if not isinstance(other, Card):
+            raise NotImplementedError
+        return CARD_RANK_ORDER.index(self.rank) < CARD_RANK_ORDER.index(other.rank)
+
     def to_object(self) -> dict[str, str]:
         rank = self.rank
         if self.rank == "SJ": rank = "small"
@@ -36,6 +41,28 @@ class Card:
             "suit": self.suit.name.lower() if not self.is_joker else "joker"
         }
 
+    @staticmethod
+    def from_object(card: dict[str, str]) -> Card:
+        suit = card["suit"]
+        rank = card["rank"]
+
+        match suit:
+            case "joker":
+                if rank == "big":
+                    return Joker(is_big=True)
+                else:
+                    return Joker(is_big=False)
+            case "hearts":
+                return Card(rank, CardSuit.HEARTS)
+            case "diamonds":
+                return Card(rank, CardSuit.DIAMONDS)
+            case "clubs":
+                return Card(rank, CardSuit.CLUBS)
+            case "spades":
+                return Card(rank, CardSuit.SPADES)
+            case _:
+                raise ValueError(f"Cannot create a card from the object: {card}")
+        
 class Joker(Card):
     def __init__(self, *, is_big: bool):
         super().__init__("BJ" if is_big else "SJ", CardSuit.HEARTS)
@@ -51,6 +78,13 @@ class Joker(Card):
         if not isinstance(other, Joker):
             return False
         return self.is_big == other.is_big
+    
+    def __lt__(self, other: object):
+        if not isinstance(other, Card):
+            raise NotImplementedError
+        if not isinstance(other, Joker):
+            return False
+        return self.is_big and not other.is_big
 
 def new_deck() -> list[Card]:
     deck: list[Card] = []
@@ -229,4 +263,4 @@ class Combo:
         if self.sequence_length != other.sequence_length:
             return False
                 
-        return self.rank > other.rank
+        return CARD_RANK_ORDER.index(self.rank) > CARD_RANK_ORDER.index(other.rank)
