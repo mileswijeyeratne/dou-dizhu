@@ -1,7 +1,7 @@
 from typing import Any
 
 from ..game.player import Player
-from ..game.game import Game, InvalidStateError
+from ..game.game import Game, InvalidStateError, InvalidBidError
 from ..game.models import Card, InvalidComboError
 
 from fastapi import WebSocket, WebSocketDisconnect
@@ -44,6 +44,13 @@ class Room:
             player.name = name
 
         if action := data.get("action"):
+            if action == "bid":
+                amount = data.get("amount", 0)
+                try:
+                    self.game.make_bid(player, amount)
+                except InvalidBidError:
+                    await websocket.send_json({"error": "invalid-bid"})
+
             if action == "play":
                 cards = []
                 for card in data.get("cards", []):
@@ -88,7 +95,7 @@ class Room:
             state.update({
                 "stake": self.game.get_stake(),
                 # "numberOfCards": TODO ts map
-                "landlordId": str(self.game.get_landlord()),
+                "landlordId": str(self.game.get_landlord().id),
                 "tableCards": self.cards_to_object(self.game.get_table_cards()),
                 "lastPlayedCombo": self.cards_to_object(self.game.get_last_combo_cards()),
             })

@@ -8,6 +8,11 @@
     position: absolute;
 }
 
+.landlord {
+    /* TODO make nice */
+    border: 2px solid #6B0F1A;
+}
+
 .opponent-card-count {
     position: absolute;
     top: 90px;

@@ -15,7 +15,7 @@ interface OpponentHandProps {
 const OpponentHand: React.FC<OpponentHandProps> = ({ cardCount, position, landlord }) => {
     // todo render landlord
     return (
-        <div className="opponent-hand">
+        <div className={`opponent-hand ${landlord ? "landlord" : ""}`}>
             {Array(cardCount).fill(0).map((_, index) => (
                 <div
                     className="opponent-card-container" 

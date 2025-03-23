@@ -4,16 +4,16 @@ import { CardType } from "../types/Card";
 
 const SERVER_URL = "ws://localhost:3000/ws";
 
-interface Player {
-    playerId: string;
-    name: string;
-};
+// interface Player {
+//     playerId: string;
+//     name: string;
+// };
 
 export interface GameState {
     gameId: string;
 
     gamePhase: "pregame" | "bidding" | "gameplay" | "over";
-    players: Player[];  // will include self
+    players: string[];  // will include self
     currentPlayerTurnId: string;
     numberOfCards: Map<string, number>;
     bids: Map<string, number>;
