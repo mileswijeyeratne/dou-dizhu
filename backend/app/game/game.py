@@ -71,10 +71,10 @@ class Game:
         self.table_cards = deck  # last 3 cards for landlord
 
     def _set_starting_player(self) -> None:
-        target_card: Card = Card("3", CardSuit.HEARTS)
+        target_card: Card = Card("3", CardSuit.DIAMONDS)
 
         for alternate_card in [
-            Card("3", CardSuit.DIAMONDS),
+            Card("3", CardSuit.HEARTS),
             Card("3", CardSuit.SPADES),
             Card("3", CardSuit.CLUBS),
         ]:

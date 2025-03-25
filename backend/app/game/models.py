@@ -232,13 +232,13 @@ class Combo:
                 self.sequence_length = len(cards)
                 return
 
-            if all([freq in [1, 3] for freq in sorted_frequencies]) and sorted_frequencies.count(3) >= 2 and self.is_straight(freq_to_rank[3]):
+            if all([freq in [1, 3] for freq in sorted_frequencies]) and sorted_frequencies.count(1) == sorted_frequencies.count(3) and sorted_frequencies.count(3) >= 2 and self.is_straight(freq_to_rank[3]):
                 self.type = ComboType.SEQUENCE_OF_TRIPLETS_WITH_SINGLES
                 self.rank = self.max_rank(freq_to_rank[3])
                 self.sequence_length = len(cards)
                 return
 
-            if all([freq in [2, 3] for freq in sorted_frequencies]) and sorted_frequencies.count(3) >= 2 and self.is_straight(freq_to_rank[3]):
+            if all([freq in [2, 3] for freq in sorted_frequencies]) and sorted_frequencies.count(1) == sorted_frequencies.count(3) and sorted_frequencies.count(3) >= 2 and self.is_straight(freq_to_rank[3]):
                 self.type = ComboType.SEQUENCE_OF_TRIPLETS_WITH_PAIRS
                 self.rank = self.max_rank(freq_to_rank[3])
                 self.sequence_length = len(cards)
