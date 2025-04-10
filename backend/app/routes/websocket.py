@@ -2,11 +2,25 @@ from typing import Any
 
 from fastapi import APIRouter, WebSocket
 from uuid import UUID, uuid4
+from contextlib import asynccontextmanager
 
 from ..game.player import Player
 from .game_room import Room 
+from .database import Database
+from . import database_models
 
-router = APIRouter()
+database = Database()
+
+@asynccontextmanager
+async def lifespan(router: APIRouter):
+    await database.open_pool()
+
+    yield
+
+    await database.close_pool()
+
+
+router = APIRouter(lifespan=lifespan)
 
 class RoomManager:
     def __init__(self) -> None:
@@ -48,3 +62,18 @@ async def handle_websocket_endpoint(websocket: WebSocket, player_id: str):
     room = room_manager.get_room(player) or room_manager.get_free_room()
 
     await room.player_connection(player, websocket)
+
+@router.get("/player/{player_id}")
+async def get_player(player_id):
+    """Temporary endpoint to test db"""
+    id = UUID(player_id)
+
+    res = await database.fetchone(
+        "SELECT * FROM users WHERE user_id = %s",
+        (id,),
+        database_models.User
+    )
+    
+    print(res)
+
+    return {"data": res}

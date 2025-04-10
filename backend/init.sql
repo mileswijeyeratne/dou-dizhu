@@ -1,4 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
-    username TEXT NOT NULL
+    user_id UUID NOT NULL,
+    running_total INTEGER,
+    username TEXT
 )
