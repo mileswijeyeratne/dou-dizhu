@@ -105,8 +105,7 @@ class Game:
         if amount > 0 and amount <= largest_bid:
             raise InvalidBidError("Must bid more than the max bid so far (or 0 to skip)")
         
-        if amount > 0:
-            self.bids[player] = amount
+        self.bids[player] = amount
 
         self._advance_turn()
 
@@ -115,17 +114,17 @@ class Game:
     def _check_bidding_finished(self) -> None:
         largest_bidder, largest_bid = max(self.bids.items(), key=lambda item: item[1], default=(None, 0))
 
-        if largest_bid == 3 or (
-            largest_bidder is not None and self.players[self.turn_ind] == largest_bidder
-        ):
-            if largest_bid == 0:
-                # restart bidding if nobody bid
-                self.stake *= 2
-                self._start_bidding()
-            
-            else:
-                assert largest_bidder is not None
-                self._start_gameplay(largest_bidder, largest_bid)
+        print(largest_bid, largest_bidder)
+
+        if largest_bid == 3:
+            assert largest_bidder is not None
+            self._start_gameplay(largest_bidder, largest_bid)
+        
+        if largest_bid == 0 and self.bids.get(self.players[self.turn_ind]) == 0:
+            print("restarting")
+            # restart bidding if nobody bid
+            self.stake *= 2
+            self._start_bidding()
 
     def _start_gameplay(self, landlord: Player, stake: int) -> None:
         self.gamestate = GameState.GAMEPLAY
