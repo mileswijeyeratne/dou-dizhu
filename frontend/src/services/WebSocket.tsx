@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState, use
 
 import { CardType } from "../types/Card";
 
-const SERVER_URL = "ws://localhost:3000/ws";
+const SERVER_URL = "ws://192.168.8.12:3000/ws";  // this needs to be not localhost
 
 interface Player {
     playerId: string;
