@@ -1,19 +1,27 @@
 from typing import Any
 
 from ..game.player import Player
-from ..game.game import Game, InvalidStateError, InvalidBidError, InvalidTurnError, InvalidMoveError
+from ..game.game import Game, GameState, InvalidStateError, InvalidBidError, InvalidTurnError, InvalidMoveError
 from ..game.models import Card, InvalidComboError
 
 from fastapi import WebSocket, WebSocketDisconnect
 
 class Room:
-    def __init__(self, id: int) -> None:
+    def __init__(self, id: int, *, is_private: bool = False, room_code: str = "") -> None:
+        self.is_private: bool = is_private 
+        self.room_code: str = room_code
+
         self.id: int = id
         self.connections: dict[Player, WebSocket] = {}
         self.game: Game = Game()
 
+        print(f"[Room {self.id}] Room created" + f" with code self.room_code" if self.is_private else "")
+
     def is_full(self) -> bool:
         return len(self.connections) >= 3
+
+    def is_active_game(self) -> bool:
+        return self.game.gamestate != GameState.PREGAME
     
     async def broadcast(self, msg: dict[Any, Any], /, exclude: Player | None = None):
         for player, conn in self.connections.items():
@@ -59,6 +67,11 @@ class Room:
 
                     try:
                         self.game.play_combo(player, cards)
+
+                        if self.game.gamestate == GameState.GAMEOVER:
+                            await self.handle_gameover()
+                            # maybe need to return to stop the state being sent (line 86)
+
                     except InvalidComboError:
                         await websocket.send_json({"error": "invalid-combo"})
                 
@@ -76,11 +89,35 @@ class Room:
             
 
         # TODO move out of here
+        # i.e should prob send diff rather than state every time
+        # doesn't seem too slow atm
         await self.broadcast({
             "action": "update-state",
             "state": self.get_game_state(),
         })
         await self.send_player_hands()
+
+    async def handle_gameover(self):
+        # send gameover to clients
+        await self.broadcast({
+            "action": "update-state",
+            "state": {"gamePhase": str(GameState.GAMEOVER)},
+        })
+        
+        # store gameover in database
+        # - will need to pass reference to db for this
+
+        # reset room
+        # - put conn back into public game queue if public room
+        # - just reset room if its private
+        if self.is_private:
+            pass
+
+        else:
+            self.game.restart_game()
+
+        print(f"[ROOM {self.id}] gameover")
+
 
     async def send_player_hands(self):
         for player, conn in self.connections.items():

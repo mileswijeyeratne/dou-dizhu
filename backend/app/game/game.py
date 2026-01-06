@@ -245,3 +245,22 @@ class Game:
             else:
                 return self.stake
             
+    def restart_game(self) -> None:
+        if self.gamestate != GameState.GAMEOVER:
+            raise InvalidStateError("Game hasn't ended sho can't restart")
+
+        self.turn_ind = 0
+
+        self.hands.clear()
+        self.table_cards.clear()
+        self.bids.clear()
+
+        self.landlord = None
+        self.stake = 1
+
+        self.last_turn = None
+        self.last_played_combo_cards.clear()
+
+        self.landlord_won = False
+
+        self._start_bidding()

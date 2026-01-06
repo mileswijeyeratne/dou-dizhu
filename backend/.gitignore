@@ -1,4 +1,5 @@
 .venv/
+.venv-pylint/
 **/__pycache__
 .mypy_cache
 .pytest_cache
