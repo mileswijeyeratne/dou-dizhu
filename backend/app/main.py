@@ -1,6 +1,19 @@
 from fastapi import FastAPI
-from app.routes import websocket
+from contextlib import asynccontextmanager
 
-app = FastAPI()
+from app.routes import websocket, auth, stats
+from app.database import database
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await database.open_pool()
+
+    yield
+
+    await database.close_pool()
+
+app = FastAPI(lifespan=lifespan)
 
 app.include_router(websocket.router)
+app.include_router(auth.router)
+app.include_router(stats.router)

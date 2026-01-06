@@ -15,7 +15,7 @@ class Room:
         self.connections: dict[Player, WebSocket] = {}
         self.game: Game = Game()
 
-        print(f"[Room {self.id}] Room created" + f" with code self.room_code" if self.is_private else "")
+        print(f"[Room {self.id}] Room created" + (f" with code self.room_code" if self.is_private else ""))
 
     def is_full(self) -> bool:
         return len(self.connections) >= 3

@@ -1,0 +1,29 @@
+from dataclasses import dataclass
+from uuid import UUID
+from datetime import datetime
+
+@dataclass(slots=True)
+class Account:
+    account_id: int
+    email: str
+    password_hash: str
+    created_at: datetime
+    
+@dataclass(slots=True)
+class Player:
+    player_id: int
+    public_player_id: UUID
+    account_id: int
+    running_total: int
+    username: str | None
+
+@dataclass(slots=True)
+class Game:
+    game_id: int
+    public_game_id: UUID
+    highest_bid: int
+    stake: int
+    landlord_id: int
+    player_1_id: int
+    player_2_id: int
+    landlord_won: bool
