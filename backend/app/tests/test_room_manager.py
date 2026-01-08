@@ -7,7 +7,7 @@ class TestRoomManager(unittest.TestCase):
         self.room_mamger = RoomManager()
 
     def test_generate_code(self):
-        print(self.room_mamger.generate_room_code())
+        print(self.room_mamger._generate_room_code())
 
 if __name__ == "__main__":
     unittest.main()

@@ -13,9 +13,9 @@ class Account:
 class Player:
     player_id: int
     public_player_id: UUID
-    account_id: int
+    account_id: int | None
     running_total: int
-    username: str | None
+    username: str 
 
 @dataclass(slots=True)
 class Game:

@@ -13,7 +13,7 @@ class RoomManager:
         self.cur_room_id += 1
         return self.cur_room_id
 
-    def generate_room_code(self) -> str:
+    def _generate_room_code(self) -> str:
         chars = [chr(i) for i in range(65, 91)] + [chr(i) for i in range(97, 123)]
 
         # check that code isn't in use
@@ -24,7 +24,7 @@ class RoomManager:
         return code
 
     def create_private_room(self) -> str:  # returns the room code
-        code = self.generate_room_code()
+        code = self._generate_room_code()
 
         room = Room(self._next_id(), is_private=True, room_code=code)
 
@@ -32,7 +32,16 @@ class RoomManager:
 
         return code
 
+    def get_private_room(self, room_code: str) -> Room:
+        room = self.private_rooms.get(room_code)
+        if not room:
+            raise ValueError("That room doesn't exist")
+        if room.is_full():
+            raise ValueError("That room is full")
+        return room
+
     def get_room(self, player: Player) -> Room | None:
+        # ts might be tapped bc player is deleted on disconnect
         for room in self.public_rooms.values():
             if player in room.game.players:
                 return room

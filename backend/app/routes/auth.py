@@ -25,7 +25,7 @@ def generate_jwt_token(account_id: int) -> str:
 
 def verify_jwt_token(token: str) -> int | None:
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithm=ALGORITHM)
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         return int(payload["sub"])
     except (JWTError, KeyError, ValueError):
         return None
@@ -67,7 +67,6 @@ async def login(req: LoginRequest, response: Response):
         (req.email,),
         database_models.Account
     )
-    print(user)
     if not user or not checkpw(req.password.encode("utf-8"), user.password_hash.encode("utf-8")):
         raise HTTPException(status_code=403, detail="Invalid login")
 
