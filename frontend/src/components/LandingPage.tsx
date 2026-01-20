@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import FormCard from "./FormCard";
 
 const LandingPage: React.FC = () => {
     const [playerName, setPlayerName] = useState<string>("");
@@ -21,11 +22,8 @@ const LandingPage: React.FC = () => {
 
     return (
         <div className="landing-page">
-            {/* title and other elements */}
-
-            <div className="game-entry-form-container">
+            <FormCard title="Join Game">
                 <form onSubmit={handleJoinGame}>
-                    <label htmlFor="playerName">Name</label>
                     <input 
                         type="text"
                         id="playerName"
@@ -40,10 +38,10 @@ const LandingPage: React.FC = () => {
                         type="submit"
                         className="submit-button"
                     >
-                        Join Game     
+                        Join    
                     </button>
                 </form>
-            </div>
+            </FormCard>
         </div>
     );
 };

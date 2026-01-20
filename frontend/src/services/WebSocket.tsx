@@ -1,8 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState, useRef } from "react";
 
 import { CardType } from "../types/Card";
-
-const SERVER_URL = "ws://192.168.8.12:3000/ws";  // this needs to be not localhost
+import { SERVER_URL } from "../assets/BackendURL";
 
 interface Player {
     playerId: string;
@@ -75,18 +74,18 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
         }
 
         try {
-            let url = SERVER_URL;
-            const playerId = localStorage.getItem("playerId");
-            if (playerId) {
-                url += `/${playerId}`;
-            }
+            let url = `ws://${SERVER_URL}/ws`;
             const ws = new WebSocket(url);
 
             ws.onopen = () => {
                 socket.current = ws;
                 setIsConnected(true);
                 console.log("opened conn");
-                ws.send(JSON.stringify({"name": localStorage.getItem("playerName")}));
+
+                const handshake = {
+                    "name": localStorage.getItem("playerName"),
+                };
+                ws.send(JSON.stringify(handshake));
             };
 
             ws.onclose = () => {
