@@ -68,6 +68,21 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     const [playerHand, setPlayerHand] = useState<CardType[]>([]);
     const [error, setError] = useState<string | null>(null);
 
+    const getJwtToken = (): string | null => {
+        const decodedCookie = decodeURIComponent(document.cookie);
+        const cookieArray = decodedCookie.split(';');
+        console.log(decodedCookie)
+
+        for (let cookie of cookieArray) {
+            cookie = cookie.trim();
+            if (cookie.indexOf("jwt_token=") === 0) {
+                return cookie.substring("jwt_token=".length);
+            }
+        }
+
+        return null;
+    };
+
     const connect = useCallback(() => {
         if (socket.current) {
             return;
@@ -75,6 +90,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
         try {
             let url = `ws://${SERVER_URL}/ws`;
+
+            const token = getJwtToken();
+            if (token) {
+                url += `?token=${encodeURIComponent(token)}`
+            }
+
             const ws = new WebSocket(url);
 
             ws.onopen = () => {
@@ -84,6 +105,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
 
                 const handshake = {
                     "name": localStorage.getItem("playerName"),
+                    ...(!token && {"is_guest": true})
                 };
                 ws.send(JSON.stringify(handshake));
             };
