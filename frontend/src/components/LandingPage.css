@@ -1,0 +1,65 @@
+.landing-page {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #2d5016 0%, #1a2e0d 100%);
+    gap: 2rem;
+    padding: 1rem;
+}
+
+.auth-status {
+    background: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.logged-in,
+.not-logged-in {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1rem;
+}
+
+.logged-in span {
+    color: #2d5016;
+}
+
+.not-logged-in span {
+    color: #666;
+}
+
+.login-btn,
+.logout-btn {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: background 0.2s;
+}
+
+.login-btn {
+    background: #2d5016;
+    color: white;
+}
+
+.login-btn:hover {
+    background: #3d6820;
+}
+
+.logout-btn {
+    background: #f0f0f0;
+    color: #333;
+}
+
+.logout-btn:hover {
+    background: #e0e0e0;
+}

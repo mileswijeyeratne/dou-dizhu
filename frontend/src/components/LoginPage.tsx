@@ -1,8 +1,9 @@
 import { useForm, SubmitHandler } from "react-hook-form";
 import { AuthResponse } from "../services/Login";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import FormCard from "./FormCard";
+import { useAuth } from "../services/AuthContext";
 
 interface LoginPageProps {
     onLogin: (username: string, password: string) => Promise<AuthResponse>;
@@ -16,11 +17,15 @@ interface LoginFormInputs {
 const LoginPage: React.FC<LoginPageProps> = ({onLogin}) => {
     const {register, handleSubmit, formState: {errors}} = useForm<LoginFormInputs>();
     const navigate = useNavigate();
+    const { setLoggedIn } = useAuth();
     const [error, setError] = useState<string>("");
 
     const onSubmit: SubmitHandler<LoginFormInputs> = async (data) => {
         try {
             await onLogin(data.email, data.password);
+            console.log(data)
+            console.log(data.email)
+            setLoggedIn(true, data.email);
             navigate("/"); // landing page
         } catch (e) {
             console.error(e);
@@ -48,6 +53,8 @@ const LoginPage: React.FC<LoginPageProps> = ({onLogin}) => {
                 {errors && <p className="error-message">{error}</p>}
 
                 <button type="submit">Login</button>
+
+                <Link to="/register">Don't have an account? Register</Link>
             </form>
         </FormCard>
     );
