@@ -57,7 +57,7 @@ const LandingPage: React.FC = () => {
                         placeholder="Enter name..."
                     />
 
-                    {errorMsg && <p className="error-msg">{errorMsg}</p>}
+                    {errorMsg && <p className="error-message">{errorMsg}</p>}
 
                     <button
                         type="submit"

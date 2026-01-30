@@ -92,9 +92,9 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             let url = `ws://${SERVER_URL}/ws`;
 
             const token = getJwtToken();
-            if (token) {
-                url += `?token=${encodeURIComponent(token)}`
-            }
+            // if (token) {
+            //     url += `?token=${encodeURIComponent(token)}`
+            // }
 
             const ws = new WebSocket(url);
 

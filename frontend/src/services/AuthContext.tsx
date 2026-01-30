@@ -42,6 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({children}) => {
         setEmail(null);
         localStorage.removeItem("email");
         localStorage.removeItem("playerName");
+        // TODO: remove jwt cookie aswell
     }
 
     return <AuthContext.Provider value={{
