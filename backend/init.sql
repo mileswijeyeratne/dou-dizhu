@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS players (
 
 CREATE TABLE IF NOT EXISTS games (
     game_id SERIAL PRIMARY KEY,
-    public_game_id UUID NOT NULL,
+    room_id UUID NOT NULL,
     highest_bid INTEGER NOT NULL,
     stake INTEGER NOT NULL,
     landlord_id INTEGER REFERENCES players (player_id) NOT NULL,

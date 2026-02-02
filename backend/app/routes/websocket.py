@@ -14,6 +14,8 @@ router = APIRouter()
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
 
+    print(websocket.cookies)
+
     # get jwt token
     token = websocket.cookies.get("jwt_token")
     account: database_models.Account | None = None
@@ -32,6 +34,7 @@ async def websocket_endpoint(websocket: WebSocket):
 
     if not account and not is_guest:
         # this is not allowed (cannot have anonymous non-guest) TODO
+        print("no account")
         await websocket.close()
         return
 
@@ -45,6 +48,7 @@ async def websocket_endpoint(websocket: WebSocket):
         try:
             room = room_manager.get_private_room(room_code)
         except ValueError as e:
+            print("no code")
             # TODO send error to client
             await websocket.close()
             return

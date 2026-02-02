@@ -18,9 +18,25 @@ class Player:
     username: str 
 
 @dataclass(slots=True)
+class PlayerPublic:
+    public_player_id: UUID
+    running_total: int
+    username: str 
+
+@dataclass(slots=True)
 class Game:
     game_id: int
-    public_game_id: UUID
+    room_id: UUID
+    highest_bid: int
+    stake: int
+    landlord_id: int
+    player_1_id: int
+    player_2_id: int
+    landlord_won: bool
+
+@dataclass(slots=True)
+class GamePublic:
+    room_id: UUID
     highest_bid: int
     stake: int
     landlord_id: int

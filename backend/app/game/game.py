@@ -233,17 +233,21 @@ class Game:
     def get_payout(self, player: Player) -> int:
         if self.gamestate != GameState.GAMEOVER:
             raise InvalidStateError("Game hasn't ended so can't get payout")
+        
+        return self.calculate_payout(player == self.landlord, self.landlord_won, self.stake)
 
-        if player == self.landlord:
-            if self.landlord_won:
-                return 2 * self.stake
+    @staticmethod
+    def calculate_payout(is_landlord: bool, landlord_won: bool, stake: int) -> int:
+        if is_landlord:
+            if landlord_won:
+                return 2 * stake
             else:
-                return -2 * self.stake
+                return -2 * stake
         else:
-            if self.landlord_won:
-                return -1 * self.stake
+            if landlord_won:
+                return -1 * stake
             else:
-                return self.stake
+                return stake
             
     def restart_game(self) -> None:
         if self.gamestate != GameState.GAMEOVER:

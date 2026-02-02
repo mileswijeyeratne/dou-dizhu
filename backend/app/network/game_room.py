@@ -4,6 +4,8 @@ from ..game.player import Player
 from ..game.game import Game, GameState, InvalidStateError, InvalidBidError, InvalidTurnError, InvalidMoveError
 from ..game.models import Card, InvalidComboError
 
+from ..database import database
+
 from fastapi import WebSocket, WebSocketDisconnect
 
 class Room:
@@ -104,17 +106,32 @@ class Room:
             "state": {"gamePhase": str(GameState.GAMEOVER)},
         })
         
-        # store gameover in database
-        # - will need to pass reference to db for this
+        # store result in database
+        landlord = self.game.landlord
+        assert landlord is not None, "something went wrong"
+        p1, p2 = [p for p in self.game.players if p is not landlord]
+        print(landlord, p1, p2)
+
+        database.execute(
+            "INSERT INTO games (room_id, highest_bid, stake, landlord_id, player_1_id, player_2_id, landlowrd_won) VALUES (%s, %s, %s, %s, %s, %s)",
+            (self.id, max(self.game.get_bids.values()), self.game.stake, landlord.id, p1.id, p2.id, self.game.landlord_won),
+        )
+
+        for player in [landlord, p1, p2]:
+            database.execute(
+                "UPDATE players SET running_total = running_total + %s WHERE public_player_id = %s",
+                (self.game.get_payout(player), player.id)
+            )
 
         # reset room
-        # - put conn back into public game queue if public room
+        # - close ws (client to display a play again option)
         # - just reset room if its private
         if self.is_private:
-            pass
+            self.game.restart_game()
 
         else:
-            self.game.restart_game()
+            for conn in self.connections.values():
+                conn.close(reason="gameover")
 
         print(f"[ROOM {self.id}] gameover")
 
