@@ -18,7 +18,7 @@ class RoomManager:
 
         # check that code isn't in use
         code = ""
-        while code and code not in self.private_rooms.keys():
+        while not code and code not in self.private_rooms.keys():
             code = "".join(choice(chars) for _ in range(6))
 
         return code
@@ -29,6 +29,8 @@ class RoomManager:
         room = Room(self._next_id(), is_private=True, room_code=code)
 
         self.private_rooms[code] = room
+
+        print("code is", code)
 
         return code
 

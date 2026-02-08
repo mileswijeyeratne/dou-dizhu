@@ -22,6 +22,11 @@ export interface GameState {
     lastPlayedCombo: CardType[];
 };
 
+export interface RoomInfo {
+    isPrivate: boolean;
+    roomId: string | null;
+};
+
 const parseGameState = (data: any, prevState: any): GameState => {
     return {
         ...prevState,
@@ -29,7 +34,7 @@ const parseGameState = (data: any, prevState: any): GameState => {
         numberOfCards: data.numberOfCards ? new Map(Object.entries(data.numberOfCards)) : prevState.numberOfCards,
         bids: data.bids ? new Map(Object.entries(data.bids)) : prevState.bids,
     }
-}
+};
 
 const defaultState: GameState = {
     gameId: "",
@@ -43,7 +48,12 @@ const defaultState: GameState = {
     tableCards: [],
     landlordId: null,
     lastPlayedCombo: []
-}
+};
+
+const defaultRoom: RoomInfo = {
+    isPrivate: true,
+    roomId: "",
+};
 
 interface WebSocketContextType {
     isConnected: boolean;
@@ -51,6 +61,7 @@ interface WebSocketContextType {
     sendMsg: (data: any) => void;
     disconnect: () => void;
     gameState: GameState | null;
+    roomInfo: RoomInfo | null;
     playerHand: CardType[];
     error: string | null;
 };
@@ -65,6 +76,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
     const socket = useRef<WebSocket | null>(null);
     const [isConnected, setIsConnected] = useState<boolean>(false);
     const [gameState, setGameState] = useState<GameState>(defaultState);
+    const [roomInfo, setRoomInfo] = useState<RoomInfo>(defaultRoom);
     const [playerHand, setPlayerHand] = useState<CardType[]>([]);
     const [error, setError] = useState<string | null>(null);
 
@@ -103,9 +115,12 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 setIsConnected(true);
                 console.log("opened conn");
 
+                const room_code = localStorage.getItem("roomId");
+
                 const handshake = {
                     "name": localStorage.getItem("playerName"),
-                    ...(!token && {"is_guest": true})
+                    ...(!token && {"is_guest": true}),
+                    ...(room_code && {"room_code": room_code}),
                 };
                 ws.send(JSON.stringify(handshake));
             };
@@ -121,6 +136,8 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
             ws.onmessage = (event) => {
                 const data = JSON.parse(event.data);
 
+                console.log(data);
+
                 if (data.id) {
                     localStorage.setItem("playerId", data.id);
                     console.log(data.id)
@@ -131,13 +148,20 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 }
 
                 if (data.action == "update-state") {
-                    console.log(data.state);
+                    // console.log(data.state);
                     setGameState(parseGameState(data.state, gameState));
                 }
 
                 if (data.error) {
                     alert(data.error)
                     console.warn(data.error)
+                }
+
+                if (data.room_type) {
+                    setRoomInfo({
+                        isPrivate: data.room_type == "private",
+                        roomId: data.room_type == "private" ? data.room_code : "",
+                    })
                 }
             };
 
@@ -179,6 +203,7 @@ export const WebSocketProvider: React.FC<WebSocketProviderProps> = ({ children }
                 sendMsg,
                 disconnect,
                 gameState,
+                roomInfo,
                 playerHand,
                 error,
             }}

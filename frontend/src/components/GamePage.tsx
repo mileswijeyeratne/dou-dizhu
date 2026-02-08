@@ -10,6 +10,7 @@ import BiddingWindow from "./BiddingWindow";
 const GamePage: React.FC = () => {
   const {
     gameState,
+    roomInfo,
     sendMsg,
     playerHand,
   } = useWebSocket();
@@ -70,7 +71,7 @@ const GamePage: React.FC = () => {
 
   return (
     <div className="game-page">
-      <h1 className="title">--title bar placeholder--</h1>
+      <h1 className="title">{roomInfo?.isPrivate ? `Private room ${roomInfo?.roomId}` : "Public room"}</h1>
 
       { isMyBid() ? <BiddingWindow makeBidCallback={makeBid}/> : null }
 

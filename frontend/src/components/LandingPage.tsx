@@ -7,6 +7,7 @@ import "./LandingPage.css";
 
 const LandingPage: React.FC = () => {
     const [playerName, setPlayerName] = useState<string>("");
+    const [roomId, setRoomId] = useState<string>("");
     const [errorMsg, setErrorMsg] = useState<string>("");
     const navigate = useNavigate();
     const { isLoggedIn, email, logout } = useAuth();
@@ -27,6 +28,7 @@ const LandingPage: React.FC = () => {
         }
 
         localStorage.setItem("playerName", playerName);
+        localStorage.setItem("roomId", roomId);
 
         navigate("/g")
     };
@@ -55,6 +57,14 @@ const LandingPage: React.FC = () => {
                         value={playerName}
                         onChange={(e) => setPlayerName(e.target.value)}
                         placeholder="Enter name..."
+                    />
+
+                    <input 
+                        type="text"
+                        id="roomId"
+                        value={roomId}
+                        onChange={(e) => setRoomId(e.target.value)}
+                        placeholder="(optional) Enter room ID..."
                     />
 
                     {errorMsg && <p className="error-message">{errorMsg}</p>}

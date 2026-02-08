@@ -54,9 +54,8 @@ async def websocket_endpoint(websocket: WebSocket):
             room = room_manager.get_private_room(room_code)
         except ValueError as e:
             print("no code")
-            # TODO send error to client
-            await websocket.close()
-            return
+            new_code = room_manager.create_private_room()
+            room = room_manager.get_private_room(new_code)
     else: 
         room = room_manager.get_room(player) or room_manager.get_free_room()
 
