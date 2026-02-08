@@ -10,9 +10,10 @@ interface OpponentHandProps {
     cardCount: number;
     position: "left" | "right";
     landlord: boolean;
+    name: string;
 }
 
-const OpponentHand: React.FC<OpponentHandProps> = ({ cardCount, position, landlord }) => {
+const OpponentHand: React.FC<OpponentHandProps> = ({ cardCount, position, landlord, name }) => {
     // todo render landlord
     return (
         <div className={`opponent-hand ${landlord ? "landlord" : ""}`}>
@@ -38,6 +39,11 @@ const OpponentHand: React.FC<OpponentHandProps> = ({ cardCount, position, landlo
                 }}
             >
                 {cardCount}
+            </p>
+            <p
+                className="opponent-name"
+            >
+                {name}
             </p>
         </div>
     );

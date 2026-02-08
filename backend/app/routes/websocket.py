@@ -31,6 +31,7 @@ async def websocket_endpoint(websocket: WebSocket):
     handshake = await websocket.receive_json()
     is_guest = handshake.get("is_guest", False)
     room_code = handshake.get("room_code")
+    player_name = handshake.get("name", None)
 
     if not account and not is_guest:
         # this is not allowed (cannot have anonymous non-guest) TODO
@@ -40,7 +41,11 @@ async def websocket_endpoint(websocket: WebSocket):
 
     # create player
     player_model: database_models.Player = await get_player_or_create(account.account_id) if account else await create_anonymous_player()
+    if player_name:
+        player_model.username = player_name
     player = Player(player_model.public_player_id, player_model.username)
+
+    await websocket.send_json({"id": str(player_model.public_player_id)})
 
     # find a room
     room: Room | None = None

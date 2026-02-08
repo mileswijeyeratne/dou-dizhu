@@ -45,11 +45,19 @@ const GamePage: React.FC = () => {
     return gameState?.players.findIndex((player) => player.playerId === localStorage.getItem("playerId"));
   }, [gameState]);
 
-  const opponentId = useCallback((position: "left" | "right") => {
+  const oppoonentPlayer = useCallback((position: "left" | "right") => {
     const selfIndex = myPlayerIndex();
-    if (selfIndex === undefined) return "";
+    if (selfIndex === undefined) return null;
     const offset = position === "left" ? 2 : 1;
-    return gameState?.players[(selfIndex + offset) % 3]?.playerId || "";
+    return gameState?.players[(selfIndex + offset) % 3];
+  }, [gameState, myPlayerIndex]);
+  
+  const opponentId = useCallback((position: "left" | "right") => {
+    return oppoonentPlayer(position)?.playerId || "";
+  }, [gameState, myPlayerIndex]);
+
+  const opponentName = useCallback((position: "left" | "right") => {
+    return oppoonentPlayer(position)?.name || "";
   }, [gameState, myPlayerIndex]);
 
   const isMyBid = useCallback(() => {
@@ -71,11 +79,13 @@ const GamePage: React.FC = () => {
           cardCount={gameState?.numberOfCards?.get(opponentId("left")) || 0}
           position="left"
           landlord={gameState?.landlordId === opponentId("left") || false}
+          name={opponentName("left")}
         /> 
         <OpponentHand
           cardCount={gameState?.numberOfCards?.get(opponentId("right")) || 0}
           position="right"
           landlord={gameState?.landlordId === opponentId("right") || false}
+          name={opponentName("right")}
         /> 
       </div>
 

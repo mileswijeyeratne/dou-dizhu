@@ -38,6 +38,8 @@ class Room:
         if player not in self.game.players:
             self.game.add_player(player)
 
+        await self.send_state()
+
         while True:
             try:
                 data = await websocket.receive_json()
@@ -89,15 +91,7 @@ class Room:
             except InvalidMoveError:
                 await websocket.send_json({"error": "invalid-move"})
             
-
-        # TODO move out of here
-        # i.e should prob send diff rather than state every time
-        # doesn't seem too slow atm
-        await self.broadcast({
-            "action": "update-state",
-            "state": self.get_game_state(),
-        })
-        await self.send_player_hands()
+        await self.send_state()
 
     async def handle_gameover(self):
         # send gameover to clients
@@ -135,6 +129,14 @@ class Room:
 
         print(f"[ROOM {self.id}] gameover")
 
+    async def send_state(self):
+        # i.e should prob send diff rather than state every time
+        # doesn't seem too slow atm
+        await self.broadcast({
+            "action": "update-state",
+            "state": self.get_game_state(),
+        })
+        await self.send_player_hands()
 
     async def send_player_hands(self):
         for player, conn in self.connections.items():

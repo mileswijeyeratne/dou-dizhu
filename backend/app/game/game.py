@@ -47,6 +47,8 @@ class Game:
         if self.gamestate != GameState.PREGAME:
             raise InvalidStateError("Cannot add a player when not in the pregame phase") 
 
+        print(self.players)
+
         self.players.append(player)
 
         if len(self.players) == 3:

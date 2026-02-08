@@ -35,3 +35,7 @@
 .card-count-position-right {
     transform: translateX(50%);
 }
+
+.opponent-name {
+   text-align: center; 
+}
