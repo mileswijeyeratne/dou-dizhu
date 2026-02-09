@@ -28,11 +28,13 @@ async def get_games(room_id: UUID):
 
     return {"data": res}
 
+get_history_query = ""
+# with open("./queries/history.sql") as f:
+#     get_history_query = f.read()
+
 async def _get_history(player_1: UUID, player_2: UUID, player_3: UUID) -> list[database_models.GamePublic]:
     return await database.fetchall(
-        "SELECT room_id, highest_bid, stake, landlord_id, \
-            player_1_id, player_2_id, landlord_won \
-                FROM GAMES WHERE array_sort(ARRAY[landlord_id, player_1_id, player_2_id]) = array_sort(ARRAY[%s, %s, %s])",
+        get_history_query,
         (player_1, player_2, player_3),
         database_models.GamePublic
     )

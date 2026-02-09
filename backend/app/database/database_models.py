@@ -39,7 +39,7 @@ class GamePublic:
     room_id: UUID
     highest_bid: int
     stake: int
-    landlord_id: int
-    player_1_id: int
-    player_2_id: int
+    landlord_id: UUID
+    player_1_id: UUID
+    player_2_id: UUID
     landlord_won: bool
